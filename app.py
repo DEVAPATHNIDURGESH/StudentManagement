@@ -1,6 +1,8 @@
+from registration import registration_bp
 from flask import Flask, render_template, request, redirect
 import sqlite3
 app = Flask(__name__)
+app.register_blueprint(registration_bp)
 # Database connection
 def connect_db():
     return sqlite3.connect("students.db")
