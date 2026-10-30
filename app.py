@@ -1,9 +1,18 @@
+
 from flask import Flask, render_template, request, redirect
 import sqlite3
+from registration import registration_bp
+from login import login_bp
+
 app = Flask(__name__)
+
+app.register_blueprint(registration_bp)
+app.register_blueprint(login_bp)
+
 # Database connection
 def connect_db():
     return sqlite3.connect("students.db")
+
 # Create table
 with connect_db() as con:
     con.execute("""
@@ -13,6 +22,7 @@ with connect_db() as con:
             department TEXT NOT NULL
         )
     """)
+
 # READ - Display all students
 @app.route("/")
 def home():
@@ -22,32 +32,37 @@ def home():
         ).fetchall()
 
     return render_template("index.html", students=students)
+
 # CREATE - Add student
 @app.route("/add", methods=["POST"])
 def add():
     name = request.form["name"].strip()
     department = request.form["department"].strip()
- 
+
     if name and department:
         with connect_db() as con:
             con.execute(
-                "INSERT INTO students (name, department) VALUES (?, ?)", (name, department)
+                "INSERT INTO students (name, department) VALUES (?, ?)",
+                (name, department)
             )
 
     return redirect("/")
+
 # UPDATE - Update student
 @app.route("/update/<int:id>", methods=["POST"])
 def update(id):
     name = request.form["name"].strip()
     department = request.form["department"].strip()
+
     if name and department:
         with connect_db() as con:
             con.execute(
-                "UPDATE students SET name=?, department=? WHERE 		id=?",
+                "UPDATE students SET name=?, department=? WHERE id=?",
                 (name, department, id)
             )
 
     return redirect("/")
+
 # DELETE - Delete student
 @app.route("/delete/<int:id>", methods=["POST"])
 def delete(id):
@@ -55,7 +70,8 @@ def delete(id):
         con.execute(
             "DELETE FROM students WHERE id=?", (id,)
         )
+
     return redirect("/")
 
 if __name__ == "__main__":
-    app.run(debug=True,port = 5001)
+    app.run(debug=True, port=5001)
