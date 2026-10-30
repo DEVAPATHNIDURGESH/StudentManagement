@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>   <title>Student Management System</title></head>
+<body>
+    <h2>Student Information Management System</h2>
+    <!-- CREATE -->
+    <h3>Add Student</h3>
+    <form action="/add" method="POST">
+        Name:
+        <input type="text" name="name" required>
+        Department:
+        <input type="text" name="department" required>
+        <button type="submit">Add</button>
+    </form>
+    <hr>
+<!-- READ -->
+    <h3>Student Records</h3>
+    <table border="1" cellpadding="10">
+        <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Department</th>
+            <th>Update</th>
+            <th>Delete</th>
+        </tr>
+        {% for student in students %}
+        <tr>
+            <td>{{ student[0] }}</td>
+ <!-- UPDATE -->
+            <form id="update-{{ student[0] }}" action="/update/{{ student[0] }}"
+                  method="POST"></form>
+            <td>
+                <input form="update-{{ student[0] }}"
+                       type="text" name="name"
+                       value="{{ student[1] }}" required>
+            </td>
+            <td>
+                <input form="update-{{ student[0] }}"
+                       type="text" name="department"
+                       value="{{ student[2] }}" required>
+            </td>
+            <td>
+                <button form="update-{{ student[0] }}"
+                        type="submit">Update</button>
+            </td>
+<!-- DELETE -->
+            <td>
+                <form action="/delete/{{ student[0] }}"
+                      method="POST">
+                    <button type="submit">Delete</button>
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+</body>
+</html>
