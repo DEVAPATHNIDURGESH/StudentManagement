@@ -1,4 +1,5 @@
-from flask import Flask, render_template, request, redirect
+
+from flask import Flask, render_template, request, redirect, jsonify
 import sqlite3
 
 from registration import registration_bp
@@ -34,17 +35,22 @@ def init_db():
             )
         """)
 
-        # Add missing columns to an existing database
         columns = [
             row["name"]
-            for row in con.execute("PRAGMA table_info(students)").fetchall()
+            for row in con.execute(
+                "PRAGMA table_info(students)"
+            ).fetchall()
         ]
 
         if "email" not in columns:
-            con.execute("ALTER TABLE students ADD COLUMN email TEXT")
+            con.execute(
+                "ALTER TABLE students ADD COLUMN email TEXT"
+            )
 
         if "password" not in columns:
-            con.execute("ALTER TABLE students ADD COLUMN password TEXT")
+            con.execute(
+                "ALTER TABLE students ADD COLUMN password TEXT"
+            )
 
 
 # READ - Display all students
@@ -102,6 +108,25 @@ def delete(id):
     return redirect("/")
 
 
+# SEARCH - Search students by name
+@app.route("/search")
+def search():
+    name = request.args.get("name", "").strip()
+
+    with connect_db() as con:
+        students = con.execute(
+            """
+            SELECT id, name, email, department
+            FROM students
+            WHERE name LIKE ?
+            """,
+            ("%" + name + "%",)
+        ).fetchall()
+
+    return jsonify([dict(student) for student in students])
+
+
+# Run Flask application
 if __name__ == "__main__":
     init_db()
     app.run(debug=True, port=5001)
